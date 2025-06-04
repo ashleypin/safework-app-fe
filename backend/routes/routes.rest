@@ -1,0 +1,43 @@
+GET http://localhost:3000/workplaces/
+
+###
+GET http://localhost:3000/users/
+
+###
+POST http://localhost:3000/users/
+Content-Type: application/json
+
+{
+  "name": "", "email": "@email.com", "role":"", "workplaceId":"n/a"
+}
+
+###
+
+GET http://localhost:3000/people/6828231e58ad90e3fc2ebdd7/
+
+###
+
+POST http://localhost:3000/workplaces/
+Content-Type: application/json
+
+{
+  "name": "CompTech", "location": "Petersham"
+}
+###
+POST http://localhost:3000/people/
+Content-Type: application/json
+
+{
+  "name": "Dee", "age": "3X", "occupation": "Driver"
+}
+
+###
+PATCH  http://localhost:3000/people/682e9dbb065d7d041e5b7b7a/
+Content-Type: application/json
+
+{
+  "age": "22", "occupation": "Quilter"
+}
+
+###
+DELETE  http://localhost:3000/people/68300efdc9e9b5bc90afb549/
