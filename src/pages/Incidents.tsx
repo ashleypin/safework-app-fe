@@ -144,11 +144,11 @@ export default function AllIncidents() {
 
   const getStatusColor = (status: string) => {
     switch(status) {
-      case 'Open': return 'bg-red-100 text-red-700';
-      case 'In Progress': return 'bg-yellow-100 text-yellow-700';
-      case 'Resolved': return 'bg-green-100 text-green-700';
-      case 'Closed': return 'bg-gray-100 text-gray-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'Open': return 'bg-gray-100 text-gray-800 border border-gray-300';
+      case 'In Progress': return 'bg-blue-50 text-blue-800 border border-blue-200';
+      case 'Resolved': return 'bg-gray-50 text-gray-600 border border-gray-200';
+      case 'Closed': return 'bg-gray-50 text-gray-500 border border-gray-200';
+      default: return 'bg-gray-100 text-gray-700 border border-gray-200';
     }
   };
 

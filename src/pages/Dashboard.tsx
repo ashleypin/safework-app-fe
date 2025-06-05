@@ -70,6 +70,16 @@ export default function Dashboard() {
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case 'Open': return 'bg-gray-100 text-gray-800 border border-gray-300';
+      case 'In Progress': return 'bg-blue-50 text-blue-800 border border-blue-200';
+      case 'Resolved': return 'bg-gray-50 text-gray-600 border border-gray-200';
+      case 'Closed': return 'bg-gray-50 text-gray-500 border border-gray-200';
+      default: return 'bg-gray-100 text-gray-700 border border-gray-200';
+    }
+  };
+
   const getTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -103,7 +113,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-lg font-semibold text-gray-800">Recent Incidents</h2>
           <button 
-           onClick={() => navigate('/all-incidents')}
+           onClick={() => navigate('/incidents')}
             className="text-primary-500 hover:text-blue-600 transition-colors flex items-center"
             >
           <span className="text-sm mr-1">View All</span>
@@ -130,11 +140,7 @@ export default function Dashboard() {
               </p>
               
               <div className="flex justify-between items-center text-xs text-gray-500">
-                <span className={`px-2 py-1 rounded ${
-                  incident.status === 'Open' ? 'bg-red-100 text-red-700' :
-                  incident.status === 'In Progress' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-green-100 text-green-700'
-                }`}>
+                <span className={`px-2 py-1 rounded ${getStatusColor(incident.status)}`}>
                   {incident.status}
                 </span>
                 <span>{getTimeAgo(incident.createdAt)}</span>
