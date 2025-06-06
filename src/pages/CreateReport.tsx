@@ -33,10 +33,6 @@ export default function CreateReport() {
 
       console.log('Incident created successfully:', newIncident);
       
-      // mock API delay
-      // src: https://stackoverflow.com/questions/65549020/how-to-mock-a-delay-in-my-api-call-function
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // redirect to dashboard after successful submission
       navigate('/dashboard');
     } catch (error) {
