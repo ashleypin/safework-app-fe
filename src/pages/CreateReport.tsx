@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { incidentService } from '../services/api';
 
 interface ReportForm {
   title: string;
@@ -23,8 +24,14 @@ export default function CreateReport() {
     setIsSubmitting(true);
 
     try {
-      // TODO: replace with actual API call to Lachlan's backend
-      console.log('Submitting incident report:', form);
+      // can the real API call please stand up....
+      const newIncident = await incidentService.createIncident({
+        title: form.title,
+        description: form.description,
+        riskLevel: form.riskLevel
+      });
+
+      console.log('Incident created successfully:', newIncident);
       
       // mock API delay
       // src: https://stackoverflow.com/questions/65549020/how-to-mock-a-delay-in-my-api-call-function
