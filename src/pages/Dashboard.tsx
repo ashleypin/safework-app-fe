@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import type { Incident } from '../types';
-// import { incidentService } from '../services/api'; // Uncomment when API is ready
+import { incidentService } from '../services/api.ts';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -12,53 +12,43 @@ export default function Dashboard() {
     resolved: 0,
     total: 0
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // test data - replace with API call to backend later
   useEffect(() => {
-    const mockIncidents: Incident[] = [
-      {
-        _id: '1',
-        title: 'Hazard 1',
-        description: 'Desc.',
-        reportedBy: 'user123',
-        workplaceId: 'workplace123',
-        status: 'Open',
-        riskLevel: 'High',
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-      },
-      {
-        _id: '2',
-        title: 'Hazard 2',
-        description: 'Desc.',
-        reportedBy: 'user456',
-        workplaceId: 'workplace123',
-        status: 'In Progress',
-        riskLevel: 'Medium',
-        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-      },
-      {
-        _id: '3',
-        title: 'Hazard 3',
-        description: 'Desc.',
-        reportedBy: 'user789',
-        workplaceId: 'workplace123',
-        status: 'Resolved',
-        riskLevel: 'Low',
-        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+    const fetchIncidents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // can the real api call please stand up...
+        const data = await incidentService.getIncidents();
+        
+        setIncidents(data);
+        
+        // calc stats from real data
+        const openCount = data.filter(i => 
+          i.status === 'Open' || i.status === 'In Progress'
+        ).length;
+        const resolvedCount = data.filter(i => 
+          i.status === 'Resolved' || i.status === 'Closed'
+        ).length;
+        
+        setStats({
+          open: openCount,
+          resolved: resolvedCount,
+          total: data.length
+        });
+        
+      } catch (err) {
+        console.error('error fetching incidents:', err);
+        setError('Failed to load incidents. Please try again.');
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
 
-    setIncidents(mockIncidents);
-    
-    // calc stats
-    const openCount = mockIncidents.filter(i => i.status === 'Open' || i.status === 'In Progress').length;
-    const resolvedCount = mockIncidents.filter(i => i.status === 'Resolved' || i.status === 'Closed').length;
-    
-    setStats({
-      open: openCount,
-      resolved: resolvedCount,
-      total: mockIncidents.length
-    });
+    fetchIncidents();
   }, []);
 
   const getRiskLevelColor = (riskLevel: string) => {
@@ -90,21 +80,52 @@ export default function Dashboard() {
     return `${Math.floor(diffInHours / 24)}d ago`;
   };
 
+  // loading state
+  if (loading) {
+    return (
+      <Layout title="Dashboard">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto mb-4"></div>
+            <div className="text-gray-500">Loading Dashboard...</div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // error state
+  if (error) {
+    return (
+      <Layout title="Dashboard">
+        <div className="text-center py-12">
+          <div className="text-red-500 mb-4">{error}</div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            try again
+          </button>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout title="Dashboard">
-      {/* stats cards -- get rid*/}
+      {/* stats cards */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <div className="text-2xl font-bold text-warning-500">{stats.open}</div>
-          <div className="text-xs text-gray-600">Active</div>
+          <div className="text-xs text-gray-600">active</div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <div className="text-2xl font-bold text-success-500">{stats.resolved}</div>
-          <div className="text-xs text-gray-600">Resolved</div>
+          <div className="text-xs text-gray-600">resolved</div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <div className="text-2xl font-bold text-gray-700">{stats.total}</div>
-          <div className="text-xs text-gray-600">Total</div>
+          <div className="text-xs text-gray-600">total</div>
         </div>
       </div>
 
@@ -113,41 +134,61 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-lg font-semibold text-gray-800">Recent Incidents</h2>
           <button 
-           onClick={() => navigate('/incidents')}
+            onClick={() => navigate('/incidents')}
             className="text-primary-500 hover:text-blue-600 transition-colors flex items-center"
-            >
-          <span className="text-sm mr-1">View All</span>
-          <span className="text-lg">→</span>
-        </button>
-      </div>
+          >
+            <span className="text-sm mr-1">View All</span>
+            <span className="text-lg">→</span>
+          </button>
+        </div>
 
-        <div className="space-y-3">
-          {incidents.map(incident => (
-            <div 
-              key={incident._id}
-              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => navigate(`/incidents/${incident._id}`)}
+        {/* empty state */}
+        {incidents.length === 0 ? (
+          <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center">
+            <div className="text-gray-400 text-4xl mb-2">📋</div>
+            <div className="text-gray-500 text-lg mb-1">No incidents yet</div>
+            <div className="text-gray-400 text-sm mb-4">Workplace looking safe!</div>
+            <button
+              onClick={() => navigate('/create-report')}
+              className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
             >
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-gray-800">{incident.title}</h3>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${getRiskLevelColor(incident.riskLevel)}`}>
-                  {incident.riskLevel}
-                </span>
-              </div>
-              
-              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                {incident.description}
-              </p>
-              
-              <div className="flex justify-between items-center text-xs text-gray-500">
-                <span className={`px-2 py-1 rounded ${getStatusColor(incident.status)}`}>
+              Report Incident
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* show only recent incidents (last 5 -- adjust as needed) */}
+            {incidents
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .slice(0, 5)
+              .map(incident => (
+                <div 
+                  key={incident._id}
+                  className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate(`/incidents/${incident._id}`)}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-gray-800">{incident.title}</h3>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${getRiskLevelColor(incident.riskLevel)}`}>
+                      {incident.riskLevel}
+                    </span>
+                  </div>
+                  
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {incident.description}
+                  </p>
+                  
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <span className={`px-2 py-1 rounded ${getStatusColor(incident.status)}`}>
                   {incident.status}
                 </span>
-                <span>{getTimeAgo(incident.createdAt)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+                    <span>{getTimeAgo(incident.createdAt)}</span>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        )}
       </div>
     </Layout>
   );
