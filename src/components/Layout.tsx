@@ -10,7 +10,7 @@ interface LayoutProps {
 
 export default function Layout({ 
   children, 
-  title = "SafeWork App",
+  title = "SafeWork",
   showBackButton = false,
   onBack
 }: LayoutProps) {
@@ -102,7 +102,6 @@ export default function Layout({
             <div className="px-6 py-4 flex justify-between items-center">
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
-                <p className="text-sm text-gray-600 mt-1">Main Construction Site</p>
               </div>
               <div className="flex items-center space-x-4">
                 <button 
