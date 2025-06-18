@@ -21,7 +21,7 @@ export default function Dashboard() {
         setLoading(true);
         setError(null);
         
-        // can the real api call please stand up...
+        // service call
         const data = await incidentService.getIncidents();
         
         setIncidents(data);
