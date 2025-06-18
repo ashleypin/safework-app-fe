@@ -3,6 +3,7 @@ import Dashboard from './pages/Dashboard';
 import CreateReport from './pages/CreateReport';
 import Profile from './pages/Profile';
 import Incidents from './pages/Incidents';
+import Workplaces from './pages/Workplaces';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/incidents" element={<Incidents />} />
         <Route path="/create-report" element={<CreateReport />} />
+        <Route path="/workplaces" element={<Workplaces />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
